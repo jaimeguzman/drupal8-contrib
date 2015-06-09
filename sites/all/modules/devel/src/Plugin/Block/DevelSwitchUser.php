@@ -19,7 +19,7 @@ use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\Core\Session\AnonymousUserSession;
+use Drupal\Core\Authentication\AnonymousUserSession;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

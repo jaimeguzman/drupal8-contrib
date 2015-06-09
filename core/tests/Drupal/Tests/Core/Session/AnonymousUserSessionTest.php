@@ -8,7 +8,7 @@
 namespace Drupal\Tests\Core\Session;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\Core\Session\AnonymousUserSession;
+use Drupal\Core\Authentication\AnonymousUserSession;
   use Drupal\user\RoleInterface;
   use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
