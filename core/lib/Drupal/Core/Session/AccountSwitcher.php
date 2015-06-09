@@ -47,10 +47,13 @@ class AccountSwitcher implements AccountSwitcherInterface {
   /**
    * Constructs a new AccountSwitcher.
    *
+   * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current user service.
    * @param \Drupal\Core\Session\WriteSafeSessionHandlerInterface $write_safe_handler
    *   The write-safe session handler.
+   *
    */
   public function __construct(AccountProxyInterface $current_user, WriteSafeSessionHandlerInterface $write_safe_handler) {
     $this->currentUser = $current_user;
@@ -59,6 +62,8 @@ class AccountSwitcher implements AccountSwitcherInterface {
 
   /**
    * {@inheritdoc}
+   * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+
    */
   public function switchTo(AccountInterface $account) {
     // Prevent session information from being saved and push previous account.
@@ -74,6 +79,8 @@ class AccountSwitcher implements AccountSwitcherInterface {
 
   /**
    * {@inheritdoc}
+   * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+
    */
   public function switchBack() {
     // Restore the previous account from the stack.
