@@ -14,6 +14,8 @@ namespace Drupal\Core\Session;
  * interface is implemented both by the global session and the user entity.
  *
  * @ingroup user_api
+ * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+ *
  */
 interface AccountInterface {
 
