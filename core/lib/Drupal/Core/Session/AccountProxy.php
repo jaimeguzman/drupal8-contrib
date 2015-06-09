@@ -17,6 +17,10 @@ namespace Drupal\Core\Session;
  * which can happen if the current user is accessed in constructors. It also
  * allows legacy code to change the current user where the user cannot be
  * directly injected into dependent code.
+ * @TODO: see where is depracted func
+ * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+
+ *
  */
 class AccountProxy implements AccountProxyInterface {
 
