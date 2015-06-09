@@ -9,6 +9,7 @@ namespace Drupal\Core\Session;
 
 /**
  * An account implementation representing an anonymous user.
+ * @deprecated in Drupal 8.0.x, will be removed before Drupal 8.0.0
  */
 class AnonymousUserSession extends UserSession {
 
