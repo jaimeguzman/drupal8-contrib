@@ -19,7 +19,6 @@ use Drupal\node\Entity\Node;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Template\Attribute;
-use Drupal\Core\Extension\Extension;
 
 /**
  * Implements hook_help().
@@ -63,11 +62,7 @@ function book_theme() {
       'variables' => array('book_link' => NULL),
     ),
     'book_tree' => array(
-      'render element' => 'tree',
-    ),
-    'book_link' => array(
-      'render element' => 'element',
-      'function' => 'theme_book_link',
+      'variables' => array('items' => array(), 'attributes' => array()),
     ),
     'book_export_html' => array(
       'variables' => array('title' => NULL, 'contents' => NULL, 'depth' => NULL),
@@ -500,37 +495,6 @@ function template_preprocess_book_node_export_html(&$variables) {
 }
 
 /**
- * Implements template_preprocess_HOOK() for book-tree.html.twig.
- */
-function template_preprocess_book_tree(&$variables) {
-  $variables['tree'] = $variables['tree']['#children'];
-}
-
-/**
- * Returns HTML for a book link and subtree.
- *
- * @param array $variables
- *   An associative array containing:
- *   - element: Structured array data for a book link.
- *
- * @ingroup themeable
- */
-function theme_book_link(array $variables) {
-  $element = $variables['element'];
-  $sub_menu = '';
-
-  if ($element['#below']) {
-    $sub_menu = drupal_render($element['#below']);
-  }
-  $element['#localized_options']['set_active_class'] = TRUE;
-  /** @var \Drupal\Core\Url $url */
-  $url = $element['#url'];
-  $url->setOptions($element['#localized_options'] + $url->getOptions());
-  $output = \Drupal::l($element['#title'], $url);
-  return '<li' . new Attribute($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
-}
-
-/**
  * Determines if a given node type is in the list of types allowed for books.
  *
  * @param string $type
@@ -569,35 +533,5 @@ function book_node_type_update(NodeTypeInterface $type) {
       $config->set('child_type', $type->id());
     }
     $config->save();
-  }
-}
-
-/**
- * Implements hook_system_info_alter().
- *
- * Prevents book module from being uninstalled whilst any book nodes exist or
- * there are any book outline stored.
- */
-function book_system_info_alter(&$info, Extension $file, $type) {
-  // It is not safe use the entity query service during maintenance mode.
-  if ($type == 'module' && !defined('MAINTENANCE_MODE') && $file->getName() == 'book') {
-    if (\Drupal::service('book.outline_storage')->hasBooks()) {
-      $info['required'] = TRUE;
-      $info['explanation'] = t('To uninstall Book, delete all content that is part of a book.');
-    }
-    else {
-      // The book node type is provided by the Book module. Prevent uninstall if
-      // there are any nodes of that type.
-      $factory = \Drupal::service('entity.query');
-      $nodes = $factory->get('node')
-        ->condition('type', 'book')
-        ->accessCheck(FALSE)
-        ->range(0, 1)
-        ->execute();
-      if (!empty($nodes)) {
-        $info['required'] = TRUE;
-        $info['explanation'] = t('To uninstall Book, delete all content that has the Book content type.');
-      }
-    }
   }
 }

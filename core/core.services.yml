@@ -136,7 +136,7 @@ services:
     arguments: ['@database', '@cache_tags.invalidator.checksum']
   cache.backend.apcu:
     class: Drupal\Core\Cache\ApcuBackendFactory
-    arguments: ['@app.root', '@cache_tags.invalidator.checksum']
+    arguments: ['@app.root', '@site.path', '@cache_tags.invalidator.checksum']
   cache.backend.php:
     class: Drupal\Core\Cache\PhpBackendFactory
     arguments: ['@cache_tags.invalidator.checksum']
@@ -285,10 +285,13 @@ services:
     arguments: ['@form_validator', '@form_submitter', '@form_cache', '@module_handler', '@event_dispatcher', '@request_stack', '@class_resolver', '@element_info', '@theme.manager', '@?csrf_token']
   form_validator:
     class: Drupal\Core\Form\FormValidator
-    arguments: ['@request_stack', '@string_translation', '@csrf_token', '@logger.channel.form']
+    arguments: ['@request_stack', '@string_translation', '@csrf_token', '@logger.channel.form', '@form_error_handler']
   form_submitter:
     class: Drupal\Core\Form\FormSubmitter
     arguments: ['@request_stack', '@url_generator']
+  form_error_handler:
+    class: Drupal\Core\Form\FormErrorHandler
+    arguments: ['@string_translation', '@link_generator']
   form_cache:
     class: Drupal\Core\Form\FormCache
     arguments: ['@app.root', '@keyvalue.expirable', '@module_handler', '@current_user', '@csrf_token', '@logger.channel.form', '@request_stack', '@page_cache_request_policy']
@@ -418,6 +421,12 @@ services:
       - { name: module_install.uninstall_validator }
     arguments: ['@entity.manager', '@string_translation']
     lazy: true
+  required_module_uninstall_validator:
+    class: Drupal\Core\Extension\RequiredModuleUninstallValidator
+    tags:
+      - { name: module_install.uninstall_validator }
+    arguments: ['@string_translation']
+    lazy: true
   theme_handler:
     class: Drupal\Core\Extension\ThemeHandler
     arguments: ['@app.root', '@config.factory', '@module_handler', '@state', '@info_parser']
@@ -492,7 +501,7 @@ services:
     arguments: ['@controller_resolver', '@request_stack', '@current_route_match', '@router.route_provider', '@module_handler', '@cache.discovery', '@language_manager', '@access_manager', '@current_user']
   plugin.manager.menu.local_task:
     class: Drupal\Core\Menu\LocalTaskManager
-    arguments: ['@controller_resolver', '@request_stack', '@current_route_match', '@router.route_provider', '@router.builder', '@module_handler', '@cache.discovery', '@language_manager', '@access_manager', '@current_user']
+    arguments: ['@controller_resolver', '@request_stack', '@current_route_match', '@router.route_provider', '@module_handler', '@cache.discovery', '@language_manager', '@access_manager', '@current_user']
   plugin.manager.menu.contextual_link:
     class: Drupal\Core\Menu\ContextualLinkManager
     arguments: ['@controller_resolver', '@module_handler', '@cache.discovery', '@language_manager', '@access_manager', '@current_user', '@request_stack']
@@ -539,6 +548,15 @@ services:
     class: Drupal\Core\AppRootFactory
     arguments: ['@kernel']
     public: false
+  site.path:
+    class: SplString
+    factory: site.path.factory:get
+    tags:
+      - { name: parameter_service }
+  site.path.factory:
+    class: Drupal\Core\SitePathFactory
+    arguments: ['@kernel']
+    public: false
   controller_resolver:
     class: Drupal\Core\Controller\ControllerResolver
     arguments: ['@class_resolver']
@@ -560,10 +578,6 @@ services:
   http_middleware.negotiation:
     class: Drupal\Core\StackMiddleware\NegotiationMiddleware
     arguments: ['@http_negotiation.format_negotiator']
-    calls:
-      - [registerFormat, ['drupal_ajax', ['application/vnd.drupal-ajax']]]
-      - [registerFormat, ['drupal_dialog', ['application/vnd.drupal-dialog']]]
-      - [registerFormat, ['drupal_modal', ['application/vnd.drupal-modal']]]
     tags:
       - { name: http_middleware, priority: 400 }
   http_middleware.reverse_proxy:
@@ -758,8 +772,8 @@ services:
   password:
     class: Drupal\Core\Password\PhpassHashedPassword
     arguments: [16]
-  accept_header_matcher:
-    class: Drupal\Core\Routing\AcceptHeaderMatcher
+  request_format_route_filter:
+    class: Drupal\Core\Routing\RequestFormatRouteFilter
     tags:
       - { name: route_filter }
   content_type_header_matcher:
@@ -1132,7 +1146,7 @@ services:
     arguments: ['@module_handler']
   date.formatter:
     class: Drupal\Core\Datetime\DateFormatter
-    arguments: ['@entity.manager', '@language_manager', '@string_translation', '@config.factory']
+    arguments: ['@entity.manager', '@language_manager', '@string_translation', '@config.factory', '@request_stack']
   feed.bridge.reader:
     class: Drupal\Component\Bridge\ZfExtensionManagerSfContainer
     calls:

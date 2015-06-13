@@ -370,7 +370,7 @@ function user_user_view(array &$build, UserInterface $account, EntityViewDisplay
   if ($display->getComponent('member_for')) {
     $build['member_for'] = array(
       '#type' => 'item',
-      '#markup' => '<h4 class="label">' . t('Member for') . '</h4> ' . \Drupal::service('date.formatter')->formatInterval(REQUEST_TIME - $account->getCreatedTime()),
+      '#markup' => '<h4 class="label">' . t('Member for') . '</h4> ' . \Drupal::service('date.formatter')->formatTimeDiffSince($account->getCreatedTime()),
     );
   }
 }
@@ -883,7 +883,7 @@ function user_view($account, $view_mode = 'full', $langcode = NULL) {
  * @param \Drupal\user\UserInterface[] $account
  *   An array of user accounts as returned by User::loadMultiple().
  * @param string $view_mode
- *   (optional) View mode, e.g., 'full', 'teaser'... Defaults to 'teaser'.
+ *   (optional) View mode, e.g., 'full', 'teaser', etc. Defaults to 'teaser.'
  * @param string|null $langcode
  *   (optional) A language code to use for rendering. Defaults to the global
  *   content language of the current request.
@@ -1428,6 +1428,7 @@ function user_logout() {
  *   - attributes: HTML attributes for the containing element.
  */
 function template_preprocess_user(&$variables) {
+  $variables['user'] = $variables['elements']['#user'];
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
