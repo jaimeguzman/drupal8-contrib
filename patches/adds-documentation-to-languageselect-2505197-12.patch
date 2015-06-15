@@ -1,0 +1,31 @@
+diff --git a/core/lib/Drupal/Core/Render/Element/LanguageSelect.php b/core/lib/Drupal/Core/Render/Element/LanguageSelect.php
+index 3b01ba1..3b9c2ef 100644
+--- a/core/lib/Drupal/Core/Render/Element/LanguageSelect.php
++++ b/core/lib/Drupal/Core/Render/Element/LanguageSelect.php
+@@ -12,7 +12,11 @@
+ /**
+  * Provides a form element for selecting a language.
+  *
+- * @see \Drupal\Core\Render\Element\Select
++ * This does not render an actual form element, but always returns 
++ * the value of the default language. It is then extended by Language module
++ * via language_element_info_alter() to provide a proper language selector.
++ *
++ * @see language_element_info_alter()
+  *
+  * @FormElement("language_select")
+  */
+diff --git a/core/modules/language/language.module b/core/modules/language/language.module
+index 9d6fa55..342e730 100644
+--- a/core/modules/language/language.module
++++ b/core/modules/language/language.module
+@@ -120,6 +120,9 @@ function language_theme() {
+ 
+ /**
+  * Implements hook_element_info_alter().
++ *
++ * @see \Drupal\Core\Render\Element\LanguageSelect
++ * @see \Drupal\Core\Render\Element\Select
+  */
+ function language_element_info_alter(&$type) {
+   // Alter the language_select element so that it will be rendered like a select
